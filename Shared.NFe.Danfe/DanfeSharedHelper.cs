@@ -21,9 +21,7 @@ namespace Shared.DFe.Danfe
         {
             //Define as variáveis que serão usadas no relatório (dúvidas a respeito do fast reports consulte a documentação em https://www.fast-report.com/pt/product/fast-report-net/documentation/)
 
-            Report relatorio = new Report();
-            relatorio.RegisterData(new[] { proc }, "NFCe", 20);
-            relatorio.GetDataSource("NFCe").Enabled = true;
+            Report relatorio = new Report();            
 
             if (!string.IsNullOrEmpty(arquivoRelatorio))
                 relatorio.Load(arquivoRelatorio);
@@ -32,6 +30,8 @@ namespace Shared.DFe.Danfe
             else
                 throw new Exception("Erro em DanfeSharedHelper.GenerateDanfeNfceReport no Zeus.DFe. Relatório não encontrado, passe os parametros 'frx' com bytes ou 'arquivoRelatorio' com o caminho do arquivo");
 
+            relatorio.RegisterData(new[] { proc }, "NFCe", 20);
+            relatorio.GetDataSource("NFCe").Enabled = true;
             relatorio.SetParameterValue("NfceDetalheVendaNormal", configuracaoDanfeNfce.DetalheVendaNormal);
             relatorio.SetParameterValue("NfceDetalheVendaContigencia", configuracaoDanfeNfce.DetalheVendaContigencia);
             relatorio.SetParameterValue("NfceImprimeDescontoItem", configuracaoDanfeNfce.ImprimeDescontoItem);
@@ -67,7 +67,7 @@ namespace Shared.DFe.Danfe
             //Segundo o Manual de Padrões Técnicos do DANFE - NFC - e e QR Code, versão 3.2, página 9, nos casos de emissão em contingência deve ser impresso uma segunda cópia como via do estabelecimento
             if (configuracaoDanfeNfce.SegundaViaContingencia)
             {
-#if !openfastreport
+#if !openfastreport && !fastskia
                 /*Se a NFe for autorizada, mesmo que seja em contingência, imprime somente uma via - devendo o usuario enviar 2 copias para a impressora*/
                 relatorio.PrintSettings.Copies = (proc.NFe.infNFe.ide.tpEmis == TipoEmissao.teNormal | (proc.protNFe != null && proc.protNFe.infProt != null && NfeSituacao.Autorizada(proc.protNFe.infProt.cStat))/*Se a NFe for autorizada, mesmo que seja em contingência, imprime somente uma via*/ ) ? 1 : 2;
 #else
@@ -83,11 +83,7 @@ namespace Shared.DFe.Danfe
         {
             //Define as variáveis que serão usadas no relatório (dúvidas a respeito do fast reports consulte a documentação em https://www.fast-report.com/pt/product/fast-report-net/documentation/)
 
-            Report relatorio = new Report();
-            relatorio.RegisterData(new[] { proc }, "NFe", 20);
-            relatorio.RegisterData(new[] { procEventoNFe }, "procEventoNFe", 20);
-            relatorio.GetDataSource("NFe").Enabled = true;
-            relatorio.GetDataSource("procEventoNFe").Enabled = true;
+            Report relatorio = new Report(); 
             
             if (!string.IsNullOrEmpty(arquivoRelatorio))
                 relatorio.Load(arquivoRelatorio);
@@ -96,6 +92,10 @@ namespace Shared.DFe.Danfe
             else
                 throw new Exception("Erro em DanfeSharedHelper.GenerateDanfeFrNfeReport no Zeus.DFe. Relatório não encontrado, passe os parametros 'frx' com bytes ou 'arquivoRelatorio' com o caminho do arquivo");
 
+            relatorio.RegisterData(new[] { proc }, "NFe", 20);
+            relatorio.RegisterData(new[] { procEventoNFe }, "procEventoNFe", 20);
+            relatorio.GetDataSource("NFe").Enabled = true;
+            relatorio.GetDataSource("procEventoNFe").Enabled = true;
             relatorio.SetParameterValue("desenvolvedor", desenvolvedor);
 
             return relatorio;
@@ -106,8 +106,6 @@ namespace Shared.DFe.Danfe
             //Define as variáveis que serão usadas no relatório (dúvidas a respeito do fast reports consulte a documentação em https://www.fast-report.com/pt/product/fast-report-net/documentation/)
 
             Report relatorio = new Report();
-            relatorio.RegisterData(new[] { proc }, "NFe", 20);
-            relatorio.GetDataSource("NFe").Enabled = true;
 
             if (!string.IsNullOrEmpty(arquivoRelatorio))
                 relatorio.Load(arquivoRelatorio);
@@ -115,6 +113,9 @@ namespace Shared.DFe.Danfe
                 relatorio.Load(new MemoryStream(frx));
             else
                 throw new Exception("Erro em DanfeSharedHelper.GenerateDanfeFrNfeReport no Zeus.DFe. Relatório não encontrado, passe os parametros 'frx' com bytes ou 'arquivoRelatorio' com o caminho do arquivo");
+
+            relatorio.RegisterData(new[] { proc }, "NFe", 20);
+            relatorio.GetDataSource("NFe").Enabled = true;
 
             string mensagem = string.Empty;
             string resumoCanhoto = string.Empty;
